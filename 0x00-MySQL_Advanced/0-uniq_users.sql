@@ -1,4 +1,3 @@
-
 -- This script creates a table named 'users' if it does not already exist.
 -- The 'users' table has the following columns:
 -- - id: An integer that auto-increments and serves as the primary key.

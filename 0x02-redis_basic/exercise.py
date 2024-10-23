@@ -8,9 +8,20 @@ __init__():
 store(data: str | bytes | int | float) -> uuid.UUID:
     Stores the given data in the Redis cache and returns a unique key.
 """
+from functools import wraps
 from typing import Optional, Callable
 import redis
 import uuid
+
+
+def count_calls(method: Callable) -> Callable:
+    key = method.__qualname__
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+    return wrapper
 
 
 class Cache:
@@ -29,6 +40,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: str | bytes | int | float) -> uuid.UUID:
         """
         Store the given data in Redis and return a unique key.

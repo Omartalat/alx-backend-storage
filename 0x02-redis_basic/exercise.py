@@ -8,6 +8,7 @@ __init__():
 store(data: str | bytes | int | float) -> uuid.UUID:
     Stores the given data in the Redis cache and returns a unique key.
 """
+from typing import Optional, Callable
 import redis
 import uuid
 
@@ -41,3 +42,18 @@ class Cache:
         key = str(uuid.uuid4())
         self._redis.set(key, data)
         return key
+
+    def get(self, key: str, fn: Optional[Callable] = None) -> any:
+        value = self._redis.get(key)
+        if fn:
+            return fn(value)
+        return value
+
+    def get_str(self, key: str) -> str:
+        return self._redis.get(key).decode('utf-8')
+
+    def get_int(self, key: str) -> int:
+        return int.from_bytes(
+            self._redis.get(key),
+            'big'
+        )
